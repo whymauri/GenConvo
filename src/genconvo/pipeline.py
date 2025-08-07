@@ -18,3 +18,13 @@
         MapUnit(WriteToWandb)
     ) \forall question prompts in prompts.templates
 """
+
+import verdict
+
+class VerdictPipeline():
+    def __init__(self, context: Context, prompts: Prompts):
+        self.context = context
+        self.prompts = prompts
+
+    def __call__(self):
+        pass
