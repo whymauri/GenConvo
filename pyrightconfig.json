@@ -1,0 +1,12 @@
+{
+  // Set project environment
+  "venvPath": ".",
+  "venv": ".venv",
+
+  // Have Pandas play nice with pyright
+  "typeCheckingMode": "basic",
+  "useLibraryCodeForTypes": true,
+  "autoImportCompletions": true,
+  "reportIndexIssue": "none",
+  "stubPath": "./typings"
+}

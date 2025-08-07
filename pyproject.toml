@@ -21,6 +21,12 @@ packages = ["src"]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.pyright]
+typeCheckingMode = "basic"
+useLibraryCodeForTypes = true
+autoImportCompletions = true
+stubPath = "typings"
+
 [dependency-groups]
 dev = [
     "pytest>=8.4.1",
