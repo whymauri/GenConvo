@@ -10,7 +10,7 @@ from ..prompts.answers import ANSWER_PROMPT
 
 class AnswerGeneration(Unit):
     """Generate one answer with document cached in system message."""
-    
+
     def __init__(self, cot_instructions: List[str]):
         super().__init__()
         self.cot_instructions = cot_instructions

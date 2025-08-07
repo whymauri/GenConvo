@@ -53,17 +53,13 @@ class GenConvoSynthesizer:
             repeat=self.num_questions,
         )
 
-        pipeline = (
-            Pipeline(name=f"GenConvoBench-{self.prompt_type}")
-            >> self_study
-        )
+        pipeline = Pipeline(name=f"GenConvoBench-{self.prompt_type}") >> self_study
 
         return pipeline.via(
             self.model_name,
             retries=3,
             temperature=self.temperature,
         )
-
 
     def run(self) -> Dict[str, Any]:
         """Run the complete pipeline."""

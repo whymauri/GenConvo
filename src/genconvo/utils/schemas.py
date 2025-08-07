@@ -3,6 +3,7 @@ import pickle
 from dataclasses import dataclass
 from verdict.schema import Schema
 
+
 @dataclass
 class Context:
     name: str
