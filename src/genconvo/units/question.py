@@ -22,13 +22,13 @@ class QuestionGeneration(Unit):
 
     def prompt(self, input_data: DocumentInput) -> str:
         return f"""@system
-{input_data.document}
+            {input_data.document}
 
-@user
-{self.prompt_template}
+            @user
+            {self.prompt_template}
 
-Generate exactly one unique question based on the document above.
-"""
+            Generate exactly one unique question based on the document above.
+        """
 
     def populate_prompt_message(
         self, input_data: DocumentInput, logger
@@ -54,7 +54,8 @@ Generate exactly one unique question based on the document above.
                         "role": "user",
                         "content": f"""{prompt_template}
 
-Generate exactly one unique question based on the document above.""",
+                        Generate exactly one unique question based on the document above.
+                        """,
                     },
                 ]
 

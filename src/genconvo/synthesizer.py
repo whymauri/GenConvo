@@ -15,7 +15,7 @@ from verdict import Pipeline, Layer
 from .prompts.questions import GEN_CONVO_PROMPT_REGISTRY
 from .prompts.cot import COT_INSTRUCTIONS
 from .units.question import QuestionGeneration
-from .units.answer import QuestionToAnswerTransform, AnswerGeneration
+from .units.answer import AnswerGeneration
 from .utils.schemas import Context, DocumentInput
 
 
@@ -27,7 +27,7 @@ class GenConvoSynthesizer:
         context: Context,
         prompt_type: str,
         num_questions: int = 16,
-        model_name: str = "claude-3-5-sonnet-20241022",
+        model_name: str = "claude-3-7",
         max_workers: int = 8,
         temperature: float = 0.7,
     ):
@@ -43,34 +43,27 @@ class GenConvoSynthesizer:
     def create_pipeline(self) -> Pipeline:
         """Create complete pipeline: questions -> transform -> answers."""
 
-        # Layer 1: Generate N questions in parallel
-        question_layer = Layer(
-            QuestionGeneration(self.prompt_template), self.num_questions
+        question = QuestionGeneration(self.prompt_template)
+        answer = AnswerGeneration(self.cot_instructions)
+
+        self_study = Layer(
+            question >> answer,
+            inner="chain",
+            outer="none",
+            repeat=self.num_questions,
         )
-
-        # Layer 2: Transform questions to answer inputs
-        transform_unit = QuestionToAnswerTransform(self.cot_instructions)
-
-        # Layer 3: Generate N answers in parallel
-        answer_unit = AnswerGeneration()
 
         pipeline = (
             Pipeline(name=f"GenConvoBench-{self.prompt_type}")
-            >> question_layer
-            >> transform_unit
-            >> answer_unit
+            >> self_study
         )
 
-        # Configure model with inference parameters
-        pipeline = pipeline.via(
+        return pipeline.via(
             self.model_name,
             retries=3,
             temperature=self.temperature,
-            max_tokens=2000,
-            timeout=120,
         )
 
-        return pipeline
 
     def run(self) -> Dict[str, Any]:
         """Run the complete pipeline."""
