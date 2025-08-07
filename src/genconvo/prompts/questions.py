@@ -100,13 +100,13 @@ REASONING_PROMPT = """
     The answer should be a number.
 """
 
-TEMPLATES = {
-    'factual': FACTUAL_PROMPT,
+GEN_CONVO_PROMPT_REGISTRY = {
+    'factual': FACTUAL_PROMPT,         # Used in the paper
     'knowledge': KNOWLEDGE_PROMPT,
-    'disjoint': DISJOINT_PROMPT,
-    'synthesized': SYNTHESIZED_PROMPT,
-    'structured': STRUCTURED_PROMPT,
-    'creative': CREATIVE_PROMPT,
-    'counting': COUNTING_PROMPT,
-    'reasoning': REASONING_PROMPT
+    'disjoint': DISJOINT_PROMPT,       # Used in the paper
+    'synthesized': SYNTHESIZED_PROMPT, # Used in the paper
+    'structured': STRUCTURED_PROMPT,   # Used in the paper
+    'creative': CREATIVE_PROMPT,       # Used in the paper
+    'counting': COUNTING_PROMPT,       
+    'reasoning': REASONING_PROMPT      # Used in the paper
 }
