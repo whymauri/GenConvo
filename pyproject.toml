@@ -1,0 +1,27 @@
+[project]
+name = "GenConvo"
+version = "0.0.1"
+description = "Replication of GenConvoBench from https://arxiv.org/pdf/2506.06266"
+authors = [{ name = "Mauri Diaz", email = "mau@mit.edu" }]
+requires-python = ">=3.12"
+dependencies = [
+    "verdict",
+]
+
+[project.scripts]
+genconvo = "src.genconvo.cli:main"
+
+[tool.pyright]
+include = ["src"]
+
+[tool.setuptools]
+packages = ["src"]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+]
