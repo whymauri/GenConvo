@@ -101,12 +101,12 @@ REASONING_PROMPT = """
 """
 
 GEN_CONVO_PROMPT_REGISTRY = {
-    'factual': FACTUAL_PROMPT,         # Used in the paper
-    'knowledge': KNOWLEDGE_PROMPT,
-    'disjoint': DISJOINT_PROMPT,       # Used in the paper
-    'synthesized': SYNTHESIZED_PROMPT, # Used in the paper
-    'structured': STRUCTURED_PROMPT,   # Used in the paper
-    'creative': CREATIVE_PROMPT,       # Used in the paper
-    'counting': COUNTING_PROMPT,       
-    'reasoning': REASONING_PROMPT      # Used in the paper
+    "factual": FACTUAL_PROMPT,  # Used in the paper
+    "knowledge": KNOWLEDGE_PROMPT,
+    "disjoint": DISJOINT_PROMPT,  # Used in the paper
+    "synthesized": SYNTHESIZED_PROMPT,  # Used in the paper
+    "structured": STRUCTURED_PROMPT,  # Used in the paper
+    "creative": CREATIVE_PROMPT,  # Used in the paper
+    "counting": COUNTING_PROMPT,
+    "reasoning": REASONING_PROMPT,  # Used in the paper
 }

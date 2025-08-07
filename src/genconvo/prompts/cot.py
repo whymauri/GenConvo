@@ -1,5 +1,5 @@
 """
-From: 
+From:
     https://github.com/HazyResearch/cartridges/blob/main/cartridges/synthesizers/self_study.py#L842-L949
 """
 
