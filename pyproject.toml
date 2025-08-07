@@ -1,6 +1,6 @@
 [project]
 name = "GenConvo"
-version = "0.0.1"
+version = "0.0.2"
 description = "Replication of GenConvoBench from https://arxiv.org/pdf/2506.06266"
 authors = [{ name = "Mauri Diaz", email = "mau@mit.edu" }]
 requires-python = ">=3.12"
@@ -11,9 +11,6 @@ dependencies = [
 [project.scripts]
 genconvo = "src.genconvo.cli:main"
 
-[tool.pyright]
-include = ["src"]
-
 [tool.setuptools]
 packages = ["src"]
 
@@ -22,6 +19,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.pyright]
+include = ["src"]
 typeCheckingMode = "basic"
 useLibraryCodeForTypes = true
 autoImportCompletions = true
