@@ -1,19 +1,11 @@
-import random
-from typing import List, Dict
-
 from verdict import Unit
-from verdict.schema import Schema
 from verdict.prompt import PromptMessage
-
-from ..prompts.answers import ANSWER_PROMPT
+from verdict.schema import Schema
+from typing import List, Dict
 
 
 class AnswerGeneration(Unit):
     """Generate one answer with document cached in system message."""
-
-    def __init__(self, cot_instructions: List[str]):
-        super().__init__()
-        self.cot_instructions = cot_instructions
 
     class InputSchema(Schema):
         question: str
@@ -22,25 +14,32 @@ class AnswerGeneration(Unit):
     class ResponseSchema(Schema):
         answer: str
 
-    def prompt(self, input_data: "AnswerGeneration.InputSchema") -> str:
-        cot_instruction = random.choice(self.cot_instructions)
-        return f"""@system
-            {input_data.document}
+    def __init__(self):
+        super().__init__()
+        # Remove CoT entirely for direct answer generation
+        self.prompt(
+            """@system
+{input.document}
 
-            @user
-            {cot_instruction}
+@user
+Answer this question based on the document above:
 
-            {ANSWER_PROMPT.format(question=input_data.question)}
-        """
+{input.question}
 
-    def populate_prompt_message(
-        self, input_data: "AnswerGeneration.InputSchema", logger
-    ) -> PromptMessage:
+Provide a direct, concise answer.
+"""
+        )
+
+    def populate_prompt_message(self, input_data, logger):
         """Override to add cache control to document."""
-        cot_instruction = random.choice(self.cot_instructions)
 
         # Create custom message with cache control
-        class CachedPromptMessage(PromptMessage):
+        class CachedPromptMessage:
+            def __init__(self, system, user, input_schema):
+                self.system = system
+                self.user = user
+                self.input_schema = input_schema
+
             def to_messages(self, add_nonce: bool = False) -> List[Dict]:
                 return [
                     {
@@ -55,15 +54,16 @@ class AnswerGeneration(Unit):
                     },
                     {
                         "role": "user",
-                        "content": f"""{cot_instruction}
+                        "content": f"""Answer this question based on the document above:
 
-                        {ANSWER_PROMPT.format(question=input_data.question)}
-                        """,
+{input_data.question}
+
+Provide a direct, concise answer.""",
                     },
                 ]
 
         return CachedPromptMessage(
             system=input_data.document,
-            user=f"{cot_instruction}\n\n{ANSWER_PROMPT.format(question=input_data.question)}",
+            user=f"Answer this question based on the document above:\n\n{input_data.question}\n\nProvide a direct, concise answer.",
             input_schema=input_data,
         )

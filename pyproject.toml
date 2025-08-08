@@ -5,8 +5,10 @@ description = "Replication of GenConvoBench from https://arxiv.org/pdf/2506.0626
 authors = [{ name = "Mauri Diaz", email = "mau@mit.edu" }]
 requires-python = ">=3.12"
 dependencies = [
+    "black>=25.1.0",
     "datasets>=4.0.0",
     "ipykernel>=6.30.1",
+    "ipywidgets>=8.1.7",
     "pymupdf>=1.26.3",
     "pymupdf4llm>=0.0.27",
     "tqdm>=4.67.1",
