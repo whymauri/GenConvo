@@ -1,6 +1,6 @@
 [project]
 name = "genconvo"
-version = "0.0.2"
+version = "1.0.0"
 description = "Replication of GenConvoBench from https://arxiv.org/pdf/2506.06266"
 authors = [{ name = "Mauri Diaz", email = "mau@mit.edu" }]
 requires-python = ">=3.12"
