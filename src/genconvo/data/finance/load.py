@@ -49,7 +49,7 @@ def _process_url(
 def load_markdown(df: pd.DataFrame, output_dir: Path, force: bool = False):
     """
     Process PDFs for each row in the dataset
-    Adds a 'pdf_text' column with the extracted text
+    Adds a 'md_text' column with the extracted text
     """
     import multiprocessing as mp
     from functools import partial
@@ -94,8 +94,9 @@ def load_finance(doc_names: Optional[list[str]] = None, force: bool = False):
         df = df[df["doc_name"].isin(doc_names)]
 
     dataset_dir = Path(dataset.cache_files[0]["filename"]).parent  # type: ignore
-
     path = dataset_dir / "bench_with_pdfs.feather"
+    print(f"Saving datasets {doc_names} to {path}.")
+
     df = load_markdown(df, dataset_dir, force=force)  # type: ignore
     df.to_feather(path)
     return df

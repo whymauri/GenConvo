@@ -1,0 +1,14 @@
+__pycache__
+.verdict
+**/*.ipynb_checkpoints/
+*.egg-info/
+
+# Summarized docs for Claude
+prompt_cacheing_files/ 
+prompt_cacheing.html
+
+# Ignore uv.lock file
+uv.lock
+
+# Ignore llm_negotiators.egg-info/ directory
+llm_negotiators.egg-info/
