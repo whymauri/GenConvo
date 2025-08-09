@@ -1,69 +1,46 @@
-from verdict import Unit
-from verdict.prompt import PromptMessage
+from typing import List
+
 from verdict.schema import Schema
-from typing import List, Dict
+
+from .base import BaseCachedUnit
 
 
-class AnswerGeneration(Unit):
+class AnswerUnit(BaseCachedUnit):
     """Generate one answer with document cached in system message."""
 
     class InputSchema(Schema):
-        question: str
         document: str
+        questions: List[str]
 
     class ResponseSchema(Schema):
         answer: str
 
     def __init__(self):
         super().__init__()
-        # Remove CoT entirely for direct answer generation
-        self.prompt(
-            """@system
-{input.document}
-
-@user
-Answer this question based on the document above:
-
-{input.question}
-
-Provide a direct, concise answer.
-"""
-        )
 
     def populate_prompt_message(self, input_data, logger):
-        """Override to add cache control to document."""
+        """Use BaseCachedUnit to wrap with cache control after building messages."""
+        # Use the instance index assigned by Layer via idx(), defaulting to 0
+        idx = int(getattr(self, "index", 0))
 
-        # Create custom message with cache control
-        class CachedPromptMessage:
-            def __init__(self, system, user, input_schema):
-                self.system = system
-                self.user = user
-                self.input_schema = input_schema
-
-            def to_messages(self, add_nonce: bool = False) -> List[Dict]:
-                return [
-                    {
-                        "role": "system",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": input_data.document,
-                                "cache_control": {"type": "ephemeral"},
-                            }
-                        ],
-                    },
-                    {
-                        "role": "user",
-                        "content": f"""Answer this question based on the document above:
-
-{input_data.question}
-
-Provide a direct, concise answer.""",
-                    },
-                ]
-
-        return CachedPromptMessage(
-            system=input_data.document,
-            user=f"Answer this question based on the document above:\n\n{input_data.question}\n\nProvide a direct, concise answer.",
-            input_schema=input_data,
+        question_text = input_data.questions[idx]
+        self._system_text = input_data.document
+        self._user_text = (
+            "Answer this question based on the document above:\n\n"
+            f"{question_text}\n\n"
+            "You may need to think about the question before answering."
+            " But once done, provide a direct and concise answer."
         )
+        # Build prompt immediately without additional diagnostics/delays
+        return super().populate_prompt_message(input_data, logger)
+
+    # Layer(...) calls idx(i+1) on repeated nodes. Capture it once to avoid parsing prefixes.
+    def idx(self, value: int) -> int:  # type: ignore[override]
+        self.index = max(0, value - 1)
+        return value
+
+    def build_system(self, input_data) -> str:
+        return getattr(self, "_system_text", "")
+
+    def build_user(self, input_data) -> str:
+        return getattr(self, "_user_text", "")

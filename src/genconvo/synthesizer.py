@@ -10,12 +10,13 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 
 from verdict import Pipeline, Layer
-from verdict.model import ProviderModel
 
 from .prompts.questions import GEN_CONVO_PROMPT_REGISTRY
-from .units.question import QuestionGeneration
-from .units.answer import AnswerGeneration
-from .utils.schemas import DocumentInput
+from .units.question import QuestionsUnit
+from .units.answer import AnswerUnit
+from .utils.schemas import DocumentInput, ParseContext
+from .utils.parser import parse_results
+from .utils.dataset_manager import GenConvoDatasetManager
 
 
 class GenConvoSynthesizer:
@@ -48,26 +49,22 @@ class GenConvoSynthesizer:
             file_path = self.dataset_directory / self.filename
             with open(file_path, "r", encoding="utf-8") as f:
                 self._document = f.read()
-        return self._document[-10000:]
+        return self._document[:200_000]
 
     def create_pipeline(self) -> Pipeline:
-        """Create complete pipeline: questions -> transform -> answers."""
+        """Create complete pipeline: questions (single) -> answers (fan-out)."""
 
-        question = QuestionGeneration(self.prompt_template)
-        answer = AnswerGeneration()
-
-        self_study = Layer(
-            question >> answer,
-            inner="none",
-            outer="dense",
-            repeat=self.num_questions,
+        questions = QuestionsUnit(self.prompt_template, self.num_questions)
+        answers = Layer(AnswerUnit(), inner="none", outer="dense", repeat=self.num_questions)
+        pipeline = (
+            Pipeline(name=f"GenConvoBench-{self.prompt_type}") 
+            >> questions
+            >> answers
         )
 
-        pipeline = Pipeline(name=f"GenConvoBench-{self.prompt_type}") >> self_study
-        model = ProviderModel(self.model_name, use_nonce=False)
         return pipeline.via(
-            model,  # type: ignore
-            temperature=self.temperature,
+            model=self.model_name,  # type: ignore
+            temperature=self.temperature
         )
 
     def run(self) -> Dict[str, Any]:
@@ -83,15 +80,26 @@ class GenConvoSynthesizer:
             display=True,  # type: ignore
         )
 
+        # Parse results into Q&A pairs
+        parse_context = ParseContext(
+            filename=self.filename,
+            dataset_directory=str(self.dataset_directory),
+            model=self.model_name,
+            temperature=self.temperature,
+            prompt_type=self.prompt_type,
+        )
+        qa_pairs = parse_results(results, parse_context)
+        
+        # Save Q&A pairs to dataset
+        dataset_manager = GenConvoDatasetManager()
+        dataset_path = dataset_manager.save_qa_pairs(qa_pairs)
+
         return {
-            "context": {
-                "filename": self.filename,
-                "dataset_directory": str(self.dataset_directory),
-                "model": self.model_name,
-                "temperature": self.temperature,
-                "prompt_type": self.prompt_type,
-            },
+            # Use dataclass helper for JSON-friendly dict
+            "context": parse_context.to_dict(),
             "results": results,
+            "qa_pairs": qa_pairs,
+            "dataset_path": dataset_path,
             "total_questions": self.num_questions,
         }
 

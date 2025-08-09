@@ -1,81 +1,46 @@
-from verdict import Unit
-from verdict.prompt import PromptMessage
+from typing import List
+
 from verdict.schema import Schema
-from typing import List, Dict
 
 from ..utils.schemas import DocumentInput
+from .base import BaseCachedUnit
 
 
-class QuestionGeneration(Unit):
-    """Generate one question with document cached in system message."""
+class QuestionsUnit(BaseCachedUnit):
+    """Generate N questions in one call with document cached in system message."""
 
     class InputSchema(DocumentInput):
         pass
 
     class ResponseSchema(Schema):
-        question: str
+        questions: List[str]
 
     class OutputSchema(Schema):
-        question: str
         document: str
+        questions: List[str]
 
-    def __init__(self, prompt_template: str):
+    def __init__(self, prompt_template: str, num_questions: int):
         super().__init__()
         self.prompt_template = prompt_template
-        # Use standard Verdict prompt pattern
-        self.prompt(
-            f"""@system
-{{input.document}}
+        self.num_questions = num_questions
 
-@user
-{prompt_template}
+    # Use BaseCachedUnit's populate_prompt_message which calls these hooks
+    def build_system(self, input_data: DocumentInput) -> str:
+        # Use original pipeline source document bytes if available
+        source = getattr(self, "source_input", None)
+        source_document = getattr(source, "document", None)
+        return source_document if isinstance(source_document, str) else input_data.document
 
-Generate exactly one unique question based on the document above.
-"""
+    def build_user(self, input_data: DocumentInput) -> str:
+        return (
+            f"{self.prompt_template}\n\n"
+            f"Generate exactly {self.num_questions} unique and diverse questions based on the document above."
         )
 
     def populate_prompt_message(self, input_data: DocumentInput, logger):
-        """Override to add cache control to document."""
-        # Create custom message with cache control
-        prompt_template = self.prompt_template
-
-        class CachedPromptMessage:
-            def __init__(self, system, user, input_schema):
-                self.system = system
-                self.user = user
-                self.input_schema = input_schema
-
-            def to_messages(self, add_nonce: bool = False) -> List[Dict]:
-                return [
-                    {
-                        "role": "system",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": input_data.document,
-                                # "cache_control": {"type": "ephemeral"},
-                            }
-                        ],
-                    },
-                    {
-                        "role": "user",
-                        "content": f"""{prompt_template}
-
-Generate exactly one unique question based on the document above.
-""",
-                    },
-                ]
-
-        return CachedPromptMessage(
-            system=input_data.document,
-            user=f"{self.prompt_template}\n\nGenerate exactly one unique question based on the document above.",
-            input_schema=input_data,
-        )
+        return super().populate_prompt_message(input_data, logger)
 
     def process(
-        self, input_data: DocumentInput, response: "QuestionGeneration.ResponseSchema"
-    ) -> "QuestionGeneration.OutputSchema":
-        """Include document in response for downstream units."""
-        return self.OutputSchema(
-            question=response.question, document=input_data.document
-        )
+        self, input_data: DocumentInput, response: "QuestionsUnit.ResponseSchema"
+    ) -> "QuestionsUnit.OutputSchema":
+        return self.OutputSchema(document=input_data.document, questions=response.questions)

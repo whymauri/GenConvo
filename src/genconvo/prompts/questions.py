@@ -76,7 +76,7 @@ CREATIVE_PROMPT = """
     about the document to a strange question of sorts.
 
     This question shouldn't be a standard question about this kind of document, it should ask to do something
-    abnormal and creative, like writing a poem about a financial document.
+    abnormal and creative. For example, you could ask someone to write a poem about the document.
 """
 
 COUNTING_PROMPT = """
@@ -95,7 +95,8 @@ REASONING_PROMPT = """
 
     This question should require going beyond the facts directly mentioned in the statement, such as asking
     to compute the percentage increase in revenue between two years, find the largest expense category, or
-    calculate difference in profit between two years.
+    calculate difference in profit between two years. You may be asked to generate many questions,
+    so make sure they are diverse and not too similar to each other.
 
     The answer should be a number.
 """
