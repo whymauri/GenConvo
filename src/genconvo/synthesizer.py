@@ -28,7 +28,7 @@ class GenConvoSynthesizer:
         filename: str,
         prompt_type: str,
         num_questions: int = 16,
-        model_name: str = "claude-3-7",
+        model_name: str = "claude-sonnet-4-20250514",
         max_workers: int = 8,
         temperature: float = 0.7,
     ):
@@ -63,7 +63,7 @@ class GenConvoSynthesizer:
         )
 
         return pipeline.via(
-            model=self.model_name,  # type: ignore
+            self.model_name,  # type: ignore
             temperature=self.temperature
         )
 

@@ -22,8 +22,6 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         description="Run GenConvoBench pipeline for a FinanceBench document and export results",
     )
 
-    # Deprecated direct path args while FinanceBench is the only dataset
-    # Hardcode FinanceBench dataset: accept doc_name instead of freeform prompt
     parser.add_argument(
         "doc_name",
         type=str,
@@ -55,13 +53,20 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         help="Maximum parallel workers for the pipeline (default: 8)",
     )
     parser.add_argument(
+        "--prompt-type",
+        type=str,
+        default="factual",
+        choices=["factual", "knowledge", "disjoint", "synthesized", "structured", "creative", "counting", "reasoning"],
+        help="Prompt type for question generation (default: factual)",
+    )
+    parser.add_argument(
         "--warmup",
         nargs="?",
         const="on",
         choices=["on", "force"],
         help=(
             "Run with a default warmup config (factual, 1 question, 1 worker, model claude-sonnet-4-20250514, temperature 0.7). "
-            "If provided, these settings override --num-questions/--max-workers/--model-name/--temperature."
+            "If provided, these settings override --num-questions/--max-workers/--model-name/--temperature/--prompt-type."
         ),
     )
     parser.add_argument(
@@ -78,14 +83,22 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        # Hardcode FinanceBench dataset path and factual prompt
+        # Hardcode FinanceBench dataset path
         dataset_directory = str(FINANCE_BENCH_PATH)
         filename = f"{args.doc_name}.md"
+
+        args_dict = {
+            "num_questions": args.num_questions,
+            "max_workers": args.max_workers,
+            "model_name": args.model_name,
+            "temperature": args.temperature,
+            "prompt_type": args.prompt_type,
+        }
 
         # Warmup overrides
         if args.warmup is not None:
             overridden_flags = [
-                flag for flag in ["--num-questions", "--max-workers", "--model-name", "--temperature"]
+                flag for flag in ["--num-questions", "--max-workers", "--model-name", "--temperature", "--prompt-type"]
                 if flag in sys.argv[1:]
             ]
             if overridden_flags:
@@ -93,24 +106,14 @@ def main(argv: list[str] | None = None) -> int:
                     "Warning: --warmup overrides these flags: " + ", ".join(overridden_flags),
                     file=sys.stderr,
                 )
-            num_questions = 1
-            max_workers = 1
-            model_name = "claude-sonnet-4-20250514"
-            temperature = 0.7
-        else:
-            num_questions = args.num_questions
-            max_workers = args.max_workers
-            model_name = args.model_name
-            temperature = args.temperature
+            args_dict["num_questions"] = 1
+            args_dict["max_workers"] = 1
+
 
         synthesizer = GenConvoSynthesizer(
             dataset_directory=dataset_directory,
             filename=filename,
-            prompt_type="factual",
-            num_questions=num_questions,
-            model_name=model_name,
-            max_workers=max_workers,
-            temperature=temperature,
+            **args_dict
         )
 
         results = synthesizer()
