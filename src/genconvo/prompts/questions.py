@@ -76,7 +76,7 @@ CREATIVE_PROMPT = """
     about the document to a strange question of sorts.
 
     This question shouldn't be a standard question about this kind of document, it should ask to do something
-    abnormal and creative. For example, you could ask someone to write a poem about the document.
+    abnormal and creative. For example, you could ask someone to write a short poem about the document.
 """
 
 COUNTING_PROMPT = """
