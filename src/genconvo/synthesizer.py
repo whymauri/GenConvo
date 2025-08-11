@@ -49,7 +49,7 @@ class GenConvoSynthesizer:
             file_path = self.dataset_directory / self.filename
             with open(file_path, "r", encoding="utf-8") as f:
                 self._document = f.read()
-        return self._document[:200_000]
+        return self._document
 
     def create_pipeline(self) -> Pipeline:
         """Create complete pipeline: questions (single) -> answers (fan-out)."""
