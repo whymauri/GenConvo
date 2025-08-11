@@ -23,7 +23,7 @@ GPU_TYPE: Literal["H100", "H200", "B200", "A100-80GB"] = os.environ.get("GPU_TYP
 MIN_CONTAINERS = int(os.environ.get("MIN_CONTAINERS", 0))
 MAX_CONTAINERS = int(os.environ.get("MAX_CONTAINERS", 32))
 ALLOW_CONCURRENT_INPUTS = int(os.environ.get("ALLOW_CONCURRENT_INPUTS", 32))
-SECRETS = os.environ.get("SECRETS", "sabri-api-keys")
+SECRETS = os.environ.get("SECRETS", "mauri-api-keys")
 # --- END ARGS ---
 
 MINUTES = 60  # seconds

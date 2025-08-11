@@ -128,7 +128,7 @@ class TokasaurusClient(Client):
             if self.config.on_failure == "raise":
                 raise Exception("Failed to get response from server")
         
-        return response
+        return response # type: ignore
 
     def _extract_fingerprint_logprobs(self, fingerprint_data: dict) -> Optional[TopLogprobs]:
         """Extract logprobs data from the fingerprint if available."""
