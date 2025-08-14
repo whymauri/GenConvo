@@ -56,7 +56,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--prompt-type",
         type=str,
         default="factual",
-        choices=["factual", "knowledge", "disjoint", "synthesized", "structured", "creative", "counting", "reasoning"],
+        choices=["factual", "knowledge", "disjoint", "synthesized", "structured", "creative", "counting", "reasoning", "factual_v2", "reasoning_v2", "counting_v2", "synthesis_v2"],
         help="Prompt type for question generation (default: factual)",
     )
     parser.add_argument(

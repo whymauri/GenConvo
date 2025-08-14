@@ -101,6 +101,42 @@ REASONING_PROMPT = """
     The answer should be a number.
 """
 
+FACTUAL_V2_PROMPT = """
+    Generate a factual recall question about a specific entity, date, or name from the document.
+
+    Format: "Who/What/When [specific question]?"
+    Answer: Must be an exact entity name, date, or proper noun from the document (2-4 words max).
+
+    The answer should be unambiguous and directly stated in the document.
+"""
+
+REASONING_V2_PROMPT = """
+    Generate a mathematical reasoning question requiring calculation over document values.
+
+    Format: "What is the [percentage/ratio/difference] of [specific calculation]?"
+    Answer: Must be a precise number with units (e.g., "12.5%", "$2.3M", "1.8x").
+
+    Question should require combining 2+ values from different parts of the document.
+"""
+
+COUNTING_V2_PROMPT = """
+    Generate a counting question about document structure or content frequency.
+
+    Format: "How many [items] are [condition]?"
+    Answer: Must be a single integer (e.g., "7", "23").
+
+    Focus on countable elements like sections, tables, mentions of specific terms, or occurrences.
+"""
+
+SYNTHESIS_V2_PROMPT = """
+    Generate a multiple choice question testing document comprehension.
+
+    Format: Question with 5 options (A/B/C/D/E).
+    Answer: Single letter (A, B, C, D, or E). E always means "There is not enough information to answer the question".  
+
+    Question should require understanding main themes, risks, or business model elements.
+"""
+
 GEN_CONVO_PROMPT_REGISTRY = {
     "factual": FACTUAL_PROMPT,  # Used in the paper
     "knowledge": KNOWLEDGE_PROMPT,
@@ -110,4 +146,9 @@ GEN_CONVO_PROMPT_REGISTRY = {
     "creative": CREATIVE_PROMPT,  # Used in the paper
     "counting": COUNTING_PROMPT,
     "reasoning": REASONING_PROMPT,  # Used in the paper
+
+    "factual_v2": FACTUAL_V2_PROMPT, # Mauri's prompts
+    "reasoning_v2": REASONING_V2_PROMPT, # Mauri's prompts
+    "counting_v2": COUNTING_V2_PROMPT, # Mauri's prompts
+    "synthesis_v2": SYNTHESIS_V2_PROMPT, # Mauri's prompts
 }

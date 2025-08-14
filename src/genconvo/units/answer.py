@@ -29,7 +29,7 @@ class AnswerUnit(BaseCachedUnit):
             "Answer this question based on the document above:\n\n"
             f"{question_text}\n\n"
             "You may need to think about the question before answering."
-            " But once done, provide a direct and concise answer."
+            " But once done, provide a single word, entity, number, or choice answer."
         )
         # Build prompt immediately without additional diagnostics/delays
         return super().populate_prompt_message(input_data, logger)

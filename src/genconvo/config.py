@@ -27,6 +27,16 @@ SONNET_RATE_LIMITER = RateLimitPolicy(
     }
 )
 
+# Claude Sonnet tier 4 rate limits:
+# - 4,000 requests per minute
+# - 2,000,000 tokens per minute (input + output combined)
+SONNET_RATE_LIMITER = RateLimitPolicy(
+    {
+        TimeWindowRateLimiter(max_value=4000, window_seconds=60): "requests",
+        TimeWindowRateLimiter(max_value=2_000_000, window_seconds=60): "tokens",
+    }
+)
+
 # Update the provider rate limiters to include Anthropic/Claude
 PROVIDER_RATE_LIMITER["anthropic"] = SONNET_RATE_LIMITER 
 PROVIDER_RATE_LIMITER["claude"] = SONNET_RATE_LIMITER 
