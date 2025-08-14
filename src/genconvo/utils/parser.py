@@ -6,6 +6,7 @@ from typing import Dict, List, Any, Tuple, Iterable, Mapping, Optional
 from dataclasses import dataclass, fields
 from datetime import datetime
 import hashlib
+import re
 from .schemas import ParseContext
 
 
@@ -58,9 +59,25 @@ def parse_results(
     document_hash = hashlib.md5((document or "").encode()).hexdigest()
     questions = results_dict.get(questions_key, [])
 
-    for i, a_key in enumerate(answer_keys):
+    # Extract layer indices from answer keys and create a mapping
+    answer_key_to_index = {}
+    for a_key in answer_keys:
+        # Extract layer index from key pattern: ...layer[{i}].unit[Unit]_answer
+        match = re.search(r'layer\[(\d+)\]', a_key)
+        if match:
+            layer_index = int(match.group(1))
+            answer_key_to_index[a_key] = layer_index
+        else:
+            # Fallback: use the order in the list (original behavior)
+            answer_key_to_index[a_key] = len(answer_key_to_index)
+
+    # Sort answer keys by their layer index to ensure correct ordering
+    sorted_answer_keys = sorted(answer_keys, key=lambda k: answer_key_to_index[k])
+
+    for a_key in sorted_answer_keys:
         answer_text = results_dict.get(a_key, "")
-        question_text = questions[i]
+        layer_index = answer_key_to_index[a_key]
+        question_text = questions[layer_index]
 
         qa_pairs.append(
             QAPair(
@@ -72,7 +89,7 @@ def parse_results(
                 temperature=context.temperature,
                 filename=context.filename,
                 document_hash=document_hash,
-                layer_index=i,
+                layer_index=layer_index,
                 timestamp=datetime.now().isoformat(),
             )
         )
